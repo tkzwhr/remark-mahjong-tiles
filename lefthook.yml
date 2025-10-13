@@ -1,0 +1,11 @@
+# lefthook.yml
+pre-commit:
+  commands:
+    check:
+      glob: "*.{js,ts,jsx,tsx,json}"
+      run: pnpm biome check --write {staged_files}
+
+pre-push:
+  commands:
+    test:
+      run: pnpm vitest --run
