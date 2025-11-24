@@ -1,40 +1,60 @@
-esmodule-template-vite
+remark-mahjong-tiles
 ==
 
-This is a template to create an ES Module.
+This is a remark plugin for representing mahjong tiles.
 
-## Getting Started
-
-```shell
-pnpm i
-pnpm run build
-```
-
-### Testing
+## Installation
 
 ```shell
-pnpm run test
+npm install @tkzwhr/remark-mahjong-tiles
 ```
 
-with coverage:
+## Usage
 
-```shell
-pnpm run coverage
+Say we have the following file `example.md`:
+
+```md
+::mahjong-tiles{src="123s"}
+
+This is :mahjong-tiles{src="1s"}.
 ```
 
-### Linting
+…and our module `example.js` looks as follows:
 
-> [!NOTE]
-> This is done automatically when you commit to git, so you normally don't need to run it.
+```js
+import rehypeFormat from 'rehype-format'
+import rehypeStringify from 'rehype-stringify'
+import remarkDirective from 'remark-directive'
+import remarkParse from 'remark-parse'
+import remarkRehype from 'remark-rehype'
+import {read} from 'to-vfile'
+import {unified} from 'unified'
+import {visit} from 'unist-util-visit'
+import remarkMahjongTiles from '@tkzwhr/remark-mahjong-tiles'
 
-```shell
-pnpm run check
+const file = await unified()
+  .use(remarkParse)
+  .use(remarkDirective)
+  .use(remarkMahjongTiles)
+  .use(remarkRehype)
+  .use(rehypeFormat)
+  .use(rehypeStringify)
+  .process(await read('example.md'))
+
+console.log(String(file))
 ```
 
-## Tools
+…then running `node example.js` yields:
 
-- Language: TypeScript
-- Framework: Vite v7
-- Testing: Vitest v3
-- Linter & Formatter: Biome v2
-- Git hook: Lefthook v1
+```html
+<div class="mahjong-tiles-wrapper">
+  <svg><!-- the content of '1s' --></svg>
+  <svg><!-- the content of '2s' --></svg>
+  <svg><!-- the content of '3s' --></svg>
+</div>
+
+This is <span class="mahjong-tiles-wrapper">
+  <svg><!-- the content of '1s' --></svg>
+</span>
+.
+```
